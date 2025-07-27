@@ -38,7 +38,6 @@ func Conectar() {
 	if dbPort == "" {
 		dbPort = "5432"
 	}
-
 	// Validamos que se haya proporcionado la contraseña, si no, detenemos el programa
 	if dbPassword == "" {
 		log.Fatal("Error: La variable de entorno DB_PASSWORD no está definida.")

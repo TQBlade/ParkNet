@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin" // Framework web Gin para crear la API
 )
 
-// 📦 Estructura de datos para los registros (asistencia)
+// Estructura de datos para los registros (asistencia)
 type Registro struct {
 	ID        int       `json:"id"`         // ID único del registro
 	Empleado  string    `json:"empleado"`   // Nombre del empleado
@@ -17,7 +17,7 @@ type Registro struct {
 	Tipo      string    `json:"tipo"`       // Tipo: entrada o salida
 }
 
-// 📥 Estructura para recibir datos del cliente (sin ID ni fecha)
+// Estructura para recibir datos del cliente (sin ID ni fecha)
 type RegistroEntrada struct {
 	Empleado string `json:"empleado"` // Campo requerido en el JSON
 	Tipo     string `json:"tipo"`     // Entrada o salida
@@ -28,18 +28,18 @@ var registros []Registro
 
 func main() {
 
-	// 🔌 Conexión a la base de datos
+	// Conexión a la base de datos
 	database.Conectar()
 
-	// 🚀 Crea una instancia del router con middleware por defecto (logger, recovery, etc.)
+	//  Crea una instancia del router con middleware por defecto (logger, recovery, etc.)
 	router := gin.Default()
 
-	// 🧪 Ruta de prueba para saber si el servidor está activo
+	//  Ruta de prueba para saber si el servidor está activo
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 
-	// 📥 Ruta POST para registrar una asistencia (NO se guarda en la base de datos todavía)
+	//  Ruta POST para registrar una asistencia (NO se guarda en la base de datos todavía)
 	router.POST("/registro", func(c *gin.Context) {
 		var datos RegistroEntrada // Creamos una variable para guardar el JSON recibido
 
@@ -61,12 +61,12 @@ func main() {
 		c.JSON(200, nuevo)                   // Respondemos con el registro creado
 	})
 
-	// 📤 Ruta GET para obtener todos los registros guardados (en memoria)
+	//  Ruta GET para obtener todos los registros guardados (en memoria)
 	router.GET("/registros", func(c *gin.Context) {
 		c.JSON(200, registros)
 	})
 
-	// 🧑 Ruta POST para guardar un empleado en la base de datos real (PostgreSQL)
+	//  Ruta POST para guardar un empleado en la base de datos real (PostgreSQL)
 	router.POST("/empleado", func(c *gin.Context) {
 		var nuevo tablas.Empleado // Creamos una variable del modelo
 
@@ -89,6 +89,6 @@ func main() {
 		c.JSON(200, nuevo)
 	})
 
-	// 🔊 Iniciamos el servidor en el puerto 8081 (http://localhost:8081)
+	//  Iniciamos el servidor en el puerto 8081 (http://localhost:8081)
 	router.Run(":8081")
 }
