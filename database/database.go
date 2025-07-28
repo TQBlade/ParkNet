@@ -53,7 +53,7 @@ func Conectar() {
 		// Si hay un error al conectar, se imprime y se detiene el programa
 		log.Fatal("Error al conectar a la base de datos:", err)
 	}
-	log.Println("✅ Conectado a la base de datos")
+	log.Println(" Conectado a la base de datos")
 
 	// Ejecuta la migración automática para la estructura Empleado
 	// Esto crea la tabla si no existe o la actualiza si hay cambios en el modelo
@@ -62,5 +62,5 @@ func Conectar() {
 	if err != nil {
 		log.Fatal("No se pudo migrar la base de datos:", err)
 	}
-	log.Println("✅ Base de datos migrada exitosamente.")
+	log.Println(" Base de datos migrada exitosamente.")
 }
