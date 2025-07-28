@@ -1,66 +1,42 @@
-package database
+package database // Define el nombre del paquete, "database" porque este archivo se encarga de la conexión a la base de datos
 
-// Importamos paquetes necesarios
 import (
-	"control_horario/tablas" // Importa el modelo Empleado desde el paquete "tablas"
-	"fmt"                    // Para construir cadenas de texto (como el DSN)
-	"log"                    // Para imprimir mensajes de error o información
-	"os"                     // Para leer variables de entorno
+	"fmt" // Para construir cadenas de texto (usamos fmt.Sprintf)
+	"log" // Para imprimir mensajes de error o información
+	"os"  // Para acceder a variables del sistema (entorno)
 
-	"gorm.io/driver/postgres" // Driver de PostgreSQL para GORM
-	"gorm.io/gorm"            // ORM GORM para trabajar con bases de datos
+	"github.com/joho/godotenv" // Librería para cargar el archivo .env
+	"gorm.io/driver/postgres"  // Driver de PostgreSQL para GORM
+	"gorm.io/gorm"             // ORM principal que usaremos para conectarnos y trabajar con la base de datos
 )
 
-// DB es una variable global para acceder a la base de datos desde cualquier parte del proyecto
-var DB *gorm.DB
+var DB *gorm.DB // Variable global que contendrá la conexión a la base de datos
 
-// Conectar establece la conexión con PostgreSQL y ejecuta la migración
+// Conectar es una función que se encarga de establecer la conexión con PostgreSQL
 func Conectar() {
-	var err error // Variable para capturar errores
-
-	// Lee las variables de entorno para configuración de conexión
-	dbHost := os.Getenv("DB_HOST")         // Dirección del host (ej. localhost)
-	dbUser := os.Getenv("DB_USER")         // Usuario de la base de datos
-	dbPassword := os.Getenv("DB_PASSWORD") // Contraseña de la base de datos
-	dbName := os.Getenv("DB_NAME")         // Nombre de la base de datos
-	dbPort := os.Getenv("DB_PORT")         // Puerto de PostgreSQL (por defecto 5432)
-
-	// Si alguna variable no está definida, se asigna un valor por defecto para desarrollo local
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-	if dbUser == "" {
-		dbUser = "postgres"
-	}
-	if dbName == "" {
-		dbName = "parqueadero"
-	}
-	if dbPort == "" {
-		dbPort = "5432"
-	}
-	// Validamos que se haya proporcionado la contraseña, si no, detenemos el programa
-	if dbPassword == "" {
-		log.Fatal("Error: La variable de entorno DB_PASSWORD no está definida.")
+	// Intenta cargar las variables desde el archivo .env
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(" Error al cargar .env") // Si falla, detiene la ejecución y muestra mensaje
 	}
 
-	// Construimos el DSN (Data Source Name), que es la cadena de conexión a PostgreSQL
+	// Lee las variables del entorno usando os.Getenv
+	host := os.Getenv("DB_HOST")         // Dirección del servidor (por lo general, localhost)
+	user := os.Getenv("DB_USER")         // Usuario de PostgreSQL
+	password := os.Getenv("DB_PASSWORD") // Contraseña del usuario
+	dbname := os.Getenv("DB_NAME")       // Nombre de la base de datos
+	port := os.Getenv("DB_PORT")         // Puerto (por defecto 5432)
+
+	// Construye el DSN (Data Source Name) con los datos obtenidos
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		dbHost, dbUser, dbPassword, dbName, dbPort)
+		host, user, password, dbname, port)
 
-	// Intentamos abrir la conexión con GORM usando el DSN
+	// Abre la conexión a la base de datos usando GORM
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		// Si hay un error al conectar, se imprime y se detiene el programa
-		log.Fatal("Error al conectar a la base de datos:", err)
+		log.Fatal(" Error al conectar con la base de datos:", err) // Si falla la conexión, muestra el error y termina
 	}
-	log.Println(" Conectado a la base de datos")
 
-	// Ejecuta la migración automática para la estructura Empleado
-	// Esto crea la tabla si no existe o la actualiza si hay cambios en el modelo
-	log.Println("Migrando la base de datos...")
-	err = DB.AutoMigrate(&tablas.Empleado{})
-	if err != nil {
-		log.Fatal("No se pudo migrar la base de datos:", err)
-	}
-	log.Println(" Base de datos migrada exitosamente.")
+	// Si todo sale bien, imprime mensaje de éxito
+	log.Println(" Conectado a la base de datos")
 }

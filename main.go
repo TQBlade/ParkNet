@@ -61,6 +61,8 @@ func main() {
 
 	router.GET("/obtenerempleados", ObtenerEmpleados)
 
+	router.GET("/obtempleado/:id", ObtenerEmpleado)
+
 	//  Iniciar el servidor en el puerto 8081
 	router.Run(":8081")
 }
