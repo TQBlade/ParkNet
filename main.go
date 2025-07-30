@@ -30,7 +30,6 @@ func CrearEmpleado(c *gin.Context) {
 func ObtenerEmpleados(c *gin.Context) {
 	var empleados []tablas.Empleado
 
-	// Usamos 'result' como nombre estándar para el resultado de la operación de GORM.
 	result := database.DB.Find(&empleados)
 
 	if result.Error != nil {
@@ -40,7 +39,6 @@ func ObtenerEmpleados(c *gin.Context) {
 	c.JSON(200, empleados)
 }
 
-// ObtenerEmpleado responde con un solo empleado según su ID.
 func ObtenerEmpleado(c *gin.Context) {
 	// Usamos 'id' como nombre estándar para el parámetro de la URL.
 	id := c.Param("id")
@@ -79,6 +77,19 @@ func ActualizarEmpleado(c *gin.Context) {
 	c.JSON(200, empleado)
 }
 
+func EliminarEmpleado(c *gin.Context) {
+
+	id := c.Param("id")
+	var empleado tablas.Empleado
+
+	if err := database.DB.First(&empleado, id).Error; err != nil {
+		c.JSON(404, gin.H{"error": "No se encontro al empleado"})
+		return
+	}
+
+	database.DB.Delete(&empleado)
+	c.JSON(200, gin.H{"mensaje": "se elimino al empleado"})
+}
 func main() {
 	database.Conectar()
 	router := gin.Default()
@@ -90,6 +101,8 @@ func main() {
 	router.GET("/empleados/:id", ObtenerEmpleado)
 
 	router.PUT("/empleados/:id", ActualizarEmpleado)
+
+	router.DELETE("/empleados/:id", EliminarEmpleado)
 
 	// Iniciar el servidor
 	router.Run(":8081")
