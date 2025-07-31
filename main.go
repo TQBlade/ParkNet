@@ -12,7 +12,7 @@ import (
 func CrearEmpleado(c *gin.Context) {
 	var empleado tablas.Empleado
 
-	if err := c.ShouldBindJSON(&empleado); err != nil {
+	if err := c.ShouldBindJSON(&empleado); err != nil { //esta sirve para analizar el cuerpo de la solicitud y da error si asi lo es por ello no se usa el .Error
 		c.JSON(400, gin.H{"error": "Datos de entrada inválidos: " + err.Error()})
 		return
 	}
@@ -90,6 +90,78 @@ func EliminarEmpleado(c *gin.Context) {
 	database.DB.Delete(&empleado)
 	c.JSON(200, gin.H{"mensaje": "se elimino al empleado"})
 }
+
+func CrearVehiculo(c *gin.Context) {
+
+	var vehiculo tablas.Vehiculo
+
+	if err := c.ShouldBindJSON(&vehiculo); err != nil {
+		c.JSON(400, gin.H{"error": "Datos invalido:" + err.Error()})
+		return
+	}
+	result := database.DB.Create(&vehiculo)
+
+	if result.Error != nil {
+		c.JSON(500, gin.H{"error": "No se pudo crear vehiculo" + result.Error.Error()})
+	}
+
+	c.JSON(201, vehiculo)
+}
+
+func ObtenerVehiculos(c *gin.Context) {
+
+	var vehiculo []tablas.Vehiculo
+
+	result := database.DB.Find(&vehiculo)
+	if result.Error != nil {
+		c.JSON(500, gin.H{"eror": "No se encontraron los empleados" + result.Error.Error()})
+		return
+	}
+	c.JSON(200, vehiculo)
+}
+
+func ObtenerVehiculo(c *gin.Context) {
+
+	ID := c.Param("id")
+	var vehiculo tablas.Vehiculo
+
+	result := database.DB.First(&vehiculo, ID)
+	if result.Error != nil {
+		c.JSON(500, gin.H{"error": "No se encontro al empleado" + result.Error.Error()})
+		return
+	}
+	c.JSON(200, vehiculo)
+}
+
+func ActualizarVehiculo(c *gin.Context) {
+
+	ID := c.Param("id")
+	var vehiculo tablas.Vehiculo
+
+	if err := database.DB.First(&vehiculo, ID).Error; err != nil {
+		c.JSON(400, gin.H{"error": "No se encontro al empleado" + err.Error()})
+		return
+	}
+	if err := c.ShouldBindJSON(&vehiculo); err != nil {
+		c.JSON(400, gin.H{"error": "Estos datos son invalidos" + err.Error()})
+		return
+	}
+	database.DB.Save(&vehiculo)
+	c.JSON(200, vehiculo)
+}
+
+func EliminarVehiculo(c *gin.Context) {
+
+	ID := c.Param("id")
+	var vehiculo tablas.Vehiculo
+
+	if err := database.DB.First(&vehiculo, ID).Error; err != nil {
+		c.JSON(400, gin.H{"error": "No se encontro el vehiculo" + err.Error()})
+		return
+	}
+	database.DB.Delete(&vehiculo)
+	c.JSON(200, gin.H{"mensaje": "Se elimino el vehiculo"})
+}
 func main() {
 	database.Conectar()
 	router := gin.Default()
@@ -103,6 +175,16 @@ func main() {
 	router.PUT("/empleados/:id", ActualizarEmpleado)
 
 	router.DELETE("/empleados/:id", EliminarEmpleado)
+
+	router.POST("/vehiculo", CrearVehiculo)
+
+	router.GET("/vehiculo", ObtenerVehiculos)
+
+	router.GET("/vehiculo/:id", ObtenerVehiculo)
+
+	router.PUT("/vehiculo/:id", ActualizarVehiculo)
+
+	router.DELETE("/vehiculo/:id", EliminarVehiculo)
 
 	// Iniciar el servidor
 	router.Run(":8081")

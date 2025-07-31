@@ -1,6 +1,7 @@
 package database // Define el nombre del paquete, "database" porque este archivo se encarga de la conexión a la base de datos
 
 import (
+	"control_horario/tablas"
 	"fmt" // Para construir cadenas de texto (usamos fmt.Sprintf)
 	"log" // Para imprimir mensajes de error o información
 	"os"  // Para acceder a variables del sistema (entorno)
@@ -37,6 +38,14 @@ func Conectar() {
 		log.Fatal(" Error al conectar con la base de datos:", err) // Si falla la conexión, muestra el error y termina
 	}
 
+	log.Println("Migrando la base de datos")
+	err = DB.AutoMigrate(
+		&tablas.Empleado{},
+		&tablas.Vehiculo{},
+	)
+	if err != nil {
+		log.Fatal("Error al migrar la base de datos:", err)
+	}
 	// Si todo sale bien, imprime mensaje de éxito
 	log.Println(" Conectado a la base de datos")
 }
